@@ -1,0 +1,10 @@
+torch
+numpy
+scipy
+nibabel
+networkx
+matplotlib
+tqdm
+wandb
+nnunetv2
+batchgenerators

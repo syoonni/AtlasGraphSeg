@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Experiment logs / tracking
+wandb/
+
+# Raw data (FreeSurfer / atlas volumes)
+*.mgz
+
+# Environment
+.venv/
+venv/
+env/
+.env
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

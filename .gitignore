@@ -9,6 +9,7 @@ wandb/
 
 # Raw data (FreeSurfer / atlas volumes)
 *.mgz
+!aparc+aseg.mgz
 
 # Environment
 .venv/

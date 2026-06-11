@@ -8,9 +8,6 @@ from typing import Optional, Tuple, Dict
 import torch
 import torch.nn as nn
 from batchgenerators.utilities.file_and_folder_operations import load_json
-# nnU-Net 경로 추가
-#NNUNET_PATH = Path("/home/hwlim/syoon/nnUNet")
-#sys.path.insert(0, str(NNUNET_PATH))
 
 # nnU-Net v2 imports
 try:
@@ -129,7 +126,7 @@ class nnUNetWrapper(nn.Module):
             raise ImportError(
                 "nnUNet v2 is not installed or not importable. "
                 "Cannot reconstruct the network architecture from plans. "
-                f"Checked path: {NNUNET_PATH}"
+                "Install it with `pip install nnunetv2`."
             )
 
         plans_manager = PlansManager(plans)

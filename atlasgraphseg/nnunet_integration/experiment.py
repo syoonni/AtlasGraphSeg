@@ -16,26 +16,20 @@ from torch.utils.data import DataLoader
 
 from .nnunet_wrapper import nnUNetWrapper
 from .graph_nnunet import GraphEnhancednnUNet, GraphPriorTrainer
-from data import FreeSurferDataset
+from atlasgraphseg.data import FreeSurferDataset
+from atlasgraphseg import config
 
 
 class ExperimentConfig:
-    """실험 설정"""
-    # 데이터 경로
-    DATA_ROOT = "/home/hwlim/syoon/nnUNet/nnUNet_raw/Dataset901_Oasis"
-    MRI_DIR = os.path.join(DATA_ROOT, "imagesTr")
-    SEG_DIR = os.path.join(DATA_ROOT, "labelsTr")
-    
-    # nnU-Net 경로
-    NNUNET_PATH = "/home/hwlim/syoon/nnUNet/nnUNet_results"
-    NNUNET_RESULTS = os.path.join(
-        NNUNET_PATH,
-        "Dataset901_Oasis",  
-        "nnUNetTrainer__nnUNetPlans__3d_fullres", 
-        "fold_0", 
-        "checkpoint_best.pth" 
-    )
-    
+    """실험 설정. 환경 의존 경로는 atlasgraphseg.config(환경변수)에서 읽음."""
+    # 데이터 경로 (DATASET_ROOT 환경변수로 지정)
+    DATA_ROOT = config.DATASET_ROOT
+    MRI_DIR = os.path.join(DATA_ROOT, "imagesTr") if DATA_ROOT else ""
+    SEG_DIR = os.path.join(DATA_ROOT, "labelsTr") if DATA_ROOT else ""
+
+    # nnU-Net pretrained 체크포인트 (NNUNET_RESULTS 환경변수로 지정)
+    NNUNET_RESULTS = config.NNUNET_RESULTS
+
     # 학습 설정
     BATCH_SIZE = 4
     PATCH_SIZE = (128, 128, 112)  # (112, 128, 128)
@@ -63,13 +57,14 @@ class ExperimentConfig:
     EVAL_SURFACES = True      # HD95/ASSD (slow but essential for paper)
     EVAL_FULL_EPOCH = 10       # Compute expensive metrics every N epochs
     
-    # 출력
-    OUTPUT_DIR = "./experiments"
+    # 출력 (ATLASGRAPHSEG_OUTPUT 환경변수로 지정)
+    OUTPUT_ROOT = config.OUTPUT_ROOT
+    OUTPUT_DIR = config.OUTPUT_ROOT
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # WandB 
-    WANDB_PROJECT = "GraphSeg_nnunet_comparison"
-    WANDB_ENTITY = "syoonni-korea-university" 
+    # WandB (WANDB_PROJECT / WANDB_ENTITY 환경변수로 지정)
+    WANDB_PROJECT = config.WANDB_PROJECT
+    WANDB_ENTITY = config.WANDB_ENTITY
 
 
 def setup_dataloaders(config: ExperimentConfig):
@@ -151,7 +146,7 @@ def run_single_experiment(
 
     wandb.init(
         project=config.WANDB_PROJECT,
-        entity=config.WANDB_ENTITY,
+        entity=config.WANDB_ENTITY or None,
         name=experiment_name,
         config={
             "lambda_graph": lambda_graph,

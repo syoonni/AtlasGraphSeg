@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple, Optional, Literal
 import torch
 import torch.nn.functional as F
 
-from graph_prior import connectivity_offsets, shift3d_pad, validate_tensor_shapes
+from atlasgraphseg.graph_prior import connectivity_offsets, shift3d_pad, validate_tensor_shapes
 
 def soft_adjacency_from_probs(
     prob: torch.Tensor,

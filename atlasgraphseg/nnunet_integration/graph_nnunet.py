@@ -10,11 +10,11 @@ from torch.cuda.amp import autocast, GradScaler
 
 
 from .nnunet_wrapper import nnUNetWrapper
-from loss.hard_loss import HardPriorLoss
-from loss.island_penalty import IslandPenaltyLoss
-from loss.total_loss import compute_all_losses
-from graph import soft_adjacency_from_probs, hard_adjacency_from_mask
-from metrics import compute_structural_score, compute_per_class_dice
+from atlasgraphseg.loss.hard_loss import HardPriorLoss
+from atlasgraphseg.loss.island_penalty import IslandPenaltyLoss
+from atlasgraphseg.loss.total_loss import compute_all_losses
+from atlasgraphseg.graph import soft_adjacency_from_probs, hard_adjacency_from_mask
+from atlasgraphseg.metrics import compute_structural_score, compute_per_class_dice
 
 
 class GraphEnhancednnUNet(nn.Module):

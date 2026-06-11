@@ -6,7 +6,7 @@ Any predicted adjacency on an impossible edge gets penalized.
 """
 import torch
 import torch.nn as nn
-from structural_prior import get_priors_for_num_classes
+from atlasgraphseg.structural_prior import get_priors_for_num_classes
 
 class HardPriorLoss(nn.Module):
     """

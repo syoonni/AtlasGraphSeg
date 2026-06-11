@@ -5,10 +5,9 @@ import os
 import torch
 from typing import Tuple, Dict, List, Optional
 
-_DEFAULT_ATLAS_PRIOR_PATH = os.environ.get(
-    "ATLAS_PRIOR_PATH",
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "atlas_prior_78class.pt")
-)
+from atlasgraphseg.config import ATLAS_PRIOR_78
+
+_DEFAULT_ATLAS_PRIOR_PATH = str(ATLAS_PRIOR_78)
 
 def load_atlas_prior(atlas_path: str = None) -> Optional[dict]:
     """

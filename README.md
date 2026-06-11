@@ -11,56 +11,92 @@ predictions respect the expected anatomical neighborhood structure between regio
    FastSurfer 78/79-class scheme, then estimate which regions are anatomically adjacent
    (`possible_mask`) and how strongly (`adjacency_strength`).
 2. During fine-tuning, derive a **soft, differentiable ROI adjacency** from the network's
-   per-voxel probabilities and match it to the atlas prior.
+   per-voxel probabilities and match it to the atlas prior (penalizing anatomically
+   impossible adjacencies).
 3. Combine with segmentation and structural-regularization losses (e.g. island penalty)
    to reduce anatomically implausible predictions.
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the loss-pipeline internals and conventions.
+
 ## Repository layout
 
-| Path | Description |
-| --- | --- |
-| `build_atlas_prior.py` | Build the atlas graph prior (`possible_mask`, `adjacency_strength`) from `aparc+aseg.mgz`. |
-| `graph_prior.py` | Connectivity offsets / graph-prior utilities. |
-| `structural_prior.py` | Loads and applies the precomputed atlas prior. |
-| `node_edge.py` | Pure-PyTorch 3D U-Net + differentiable soft ROI-adjacency prior loss. |
-| `graph.py` | Graph construction helpers. |
-| `data.py` | FastSurfer label maps and dataset/dataloader utilities. |
-| `metrics.py` | Structural quality metrics (connected components, island penalty, etc.). |
-| `loss/` | Segmentation, hard, island-penalty and combined losses. |
-| `nnunet_integration/` | nnU-Net wrapper, graph-enhanced model and experiment runner. |
-| `run_experiment.py` | Entry point: evaluate pretrained baseline and fine-tune with the graph prior. |
-| `visualize_atlas_prior.py` | Render publication figures of the atlas prior. |
-| `atlas_prior_78class.pt` / `atlas_prior_79class.pt` | Precomputed atlas graph priors. |
+```
+atlasgraphseg/              # importable package
+├── config.py               # paths & settings (read from environment variables)
+├── data.py                 # FastSurfer label maps, dataset/dataloaders
+├── graph.py                # soft/hard ROI adjacency from probs / masks
+├── graph_prior.py          # connectivity offsets & tensor helpers
+├── structural_prior.py     # loads the atlas prior (dispatch by num_classes)
+├── metrics.py              # Dice, connected components, Betti, HD95/ASSD
+├── node_edge.py            # standalone pure-PyTorch U-Net + prior loss (reference)
+├── loss/                   # seg / hard-prior / island-penalty / orchestration
+└── nnunet_integration/     # nnU-Net wrapper, graph-enhanced model, trainer, experiment
+scripts/                    # command-line entry points
+├── build_atlas_prior.py
+├── run_experiment.py
+└── visualize_atlas_prior.py
+assets/                     # data & generated artifacts (tracked in git)
+├── aparc+aseg.mgz          # FreeSurfer atlas volume (input to build_atlas_prior)
+├── priors/                 # atlas_prior_{78,79}class.pt
+└── figures/                # rendered figures
+```
 
 ## Setup
 
 ```bash
-pip install -r requirements.txt
+pip install -e .            # installs the package + dependencies (editable)
 ```
 
-Requires PyTorch (CUDA recommended), nnU-Net v2, and nibabel.
+Requires PyTorch (CUDA recommended), nnU-Net v2, and nibabel. An editable install is
+needed so `scripts/*.py` can `import atlasgraphseg`.
+
+### Environment variables
+
+Environment-specific paths are **not** hardcoded — set them before running experiments:
+
+| Variable | Meaning |
+| --- | --- |
+| `DATASET_ROOT` | nnU-Net raw dataset dir (must contain `imagesTr/`, `labelsTr/`) |
+| `NNUNET_RESULTS` | Pretrained nnU-Net results dir or a checkpoint `.pth` (with sibling `plans.json` + `dataset.json`) |
+| `ATLASGRAPHSEG_OUTPUT` | Where experiment outputs/checkpoints are written (default: `./experiments`) |
+| `WANDB_PROJECT`, `WANDB_ENTITY` | Optional Weights & Biases logging |
+| `ATLAS_PRIOR_PATH` | Override the default atlas prior (default: `assets/priors/atlas_prior_78class.pt`) |
+
+Example:
+
+```bash
+export DATASET_ROOT=/data/nnUNet_raw/Dataset901_Oasis
+export NNUNET_RESULTS=/data/nnUNet_results/Dataset901_Oasis/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_0/checkpoint_best.pth
+export ATLASGRAPHSEG_OUTPUT=/data/experiments
+```
 
 ## Usage
 
 Build the atlas prior from a FreeSurfer atlas volume:
 
 ```bash
-python build_atlas_prior.py \
-    --atlas /path/to/aparc+aseg.mgz \
-    --output atlas_prior_78class.pt \
+python scripts/build_atlas_prior.py \
+    --atlas assets/aparc+aseg.mgz \
+    --output assets/priors/atlas_prior_78class.pt \
     --connectivity 6 --visualize
 ```
 
-Run a fine-tuning experiment:
+Run a fine-tuning experiment (evaluate pretrained baseline, then sweep graph-prior λ):
 
 ```bash
-python run_experiment.py
+python scripts/run_experiment.py
 ```
 
-> Note: some scripts contain hardcoded absolute paths (e.g. dataset / pretrained-weight
-> locations). Adjust them for your environment before running.
+Experiment knobs (batch size, patch size, λ values, epochs) live in
+`atlasgraphseg/nnunet_integration/experiment.py::ExperimentConfig`.
+
+Regenerate publication figures from a saved prior:
+
+```bash
+python scripts/visualize_atlas_prior.py --prior assets/priors/atlas_prior_79class.pt
+```
 
 ## Notes
 
-- Raw volumes (`*.mgz`) and Weights & Biases run logs (`wandb/`) are intentionally
-  excluded from version control via `.gitignore`.
+- Raw volumes (`*.mgz`, except the bundled atlas), Weights & Biases run logs (`wandb/`),
+  and experiment outputs (`experiments/`) are excluded from version control.

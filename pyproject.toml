@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "atlasgraphseg"
+version = "0.1.0"
+description = "Atlas-derived graph-prior fine-tuning for 3D brain segmentation"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "torch",
+    "numpy",
+    "scipy",
+    "nibabel",
+    "networkx",
+    "matplotlib",
+    "tqdm",
+    "wandb",
+    "nnunetv2",
+    "batchgenerators",
+]
+
+[tool.setuptools.packages.find]
+include = ["atlasgraphseg*"]

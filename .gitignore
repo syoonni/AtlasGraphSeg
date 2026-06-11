@@ -11,6 +11,13 @@ wandb/
 *.mgz
 !aparc+aseg.mgz
 
+# Build / packaging
+build/
+dist/
+
+# Experiment outputs
+experiments/
+
 # Environment
 .venv/
 venv/

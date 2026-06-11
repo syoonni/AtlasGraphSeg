@@ -17,7 +17,7 @@ from typing import Dict, Tuple, Optional
 from .seg_loss import segmentation_loss, dice_loss
 from .hard_loss import HardPriorLoss
 from .island_penalty import IslandPenaltyLoss
-from graph import soft_adjacency_from_probs, hard_adjacency_from_mask
+from atlasgraphseg.graph import soft_adjacency_from_probs, hard_adjacency_from_mask
 
 
 def compute_all_losses(

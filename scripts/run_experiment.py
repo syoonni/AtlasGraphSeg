@@ -7,18 +7,17 @@ graph prior (λ>0)만 fine-tuning합니다.
 """
 
 import os
-import sys
-sys.path.append('/home/hwlim/syoon/AtlasGraphSeg')
-
 import json
 from pathlib import Path
 from datetime import datetime
 import torch
 
-# Import from project
-from nnunet_integration.experiment import ExperimentConfig, setup_dataloaders, run_single_experiment
-from nnunet_integration.nnunet_wrapper import nnUNetWrapper
-from nnunet_integration.graph_nnunet import GraphEnhancednnUNet, GraphPriorTrainer
+# Import from the installed package (pip install -e .)
+from atlasgraphseg.nnunet_integration.experiment import (
+    ExperimentConfig, setup_dataloaders, run_single_experiment,
+)
+from atlasgraphseg.nnunet_integration.nnunet_wrapper import nnUNetWrapper
+from atlasgraphseg.nnunet_integration.graph_nnunet import GraphEnhancednnUNet, GraphPriorTrainer
 
 
 
@@ -105,7 +104,7 @@ def run_efficient_experiment():
     
     # Output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    config.OUTPUT_DIR = f"/home/hwlim/syoon/save/graph_prior_experiments/{timestamp}"
+    config.OUTPUT_DIR = os.path.join(config.OUTPUT_ROOT, "graph_prior_experiments", timestamp)
     Path(config.OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
     
     print(f"  - 결과 저장: {config.OUTPUT_DIR}")

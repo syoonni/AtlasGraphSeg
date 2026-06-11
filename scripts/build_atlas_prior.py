@@ -10,9 +10,9 @@ FreeSurfer fsaverage aparc+aseg.mgz → FastSurfer 79-class Atlas Graph Prior
   3) [79, 79] possible_mask, adjacency_strength 산출
 
 Usage:
-  python build_atlas_prior.py \
-      --atlas /home/hwlim/syoon/AtlasGraphSeg/aparc+aseg.mgz \
-      --output atlas_prior_78class.pt --connectivity 6 --visualize
+  python scripts/build_atlas_prior.py \
+      --atlas assets/aparc+aseg.mgz \
+      --output assets/priors/atlas_prior_78class.pt --connectivity 6 --visualize
 """
 import argparse, sys
 from pathlib import Path
